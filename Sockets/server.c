@@ -7,6 +7,7 @@
 #include<netinet/in.h>
 #include<unistd.h>
 #define SIZE 500
+#define PORT_STRING "35942"
 
 
 struct addrinfo hints;
@@ -19,32 +20,55 @@ struct sockaddr_in * dnsaccess(char *hostname){
         return address;
 }
 
-int main(){
+int main(int argc, char* argv[]){
   
   //initialize socket descritors, port var, and client length var
-  int listenfd, connfd, port, clientlen;
+  int listenfd, connfd, port, clientlen, backLog;
   //initialize host entity struct
   struct hostent *hp;
-  struct sockaddr_in serveraddr
+  struct sockaddr_in clientaddr;
   //initialize host address pointer
   char *haddrp;
   
   //convert string input of port # to int
   port = atoi(argv[1]);
-  
+  backLog = 0;
   //calls the listen function, which listens for a connect function
   // and returns a socket descriptor if the listen is valid 
-  listenfd = listen(port);
-
-  while(1):
-    clientlen = sizeof(clientaddr);
-    connfd = accept(listenfd, (SA *)&clientaddr, &clientlen);
-    hp = Gethostbyaddr((cosnt char *)&clientaddr.sin_addr.s_addr,
+  listenfd = listen(port, backLog);
+  if(listenfd < 0){
+    printf("Error: could not open server socker\n");
+  }
+  clientlen = sizeof(clientaddr);
+      
+  while(1){
+    connfd = accept(listenfd, (struct sockaddr*)&clientaddr, &clientlen);
+    if(connfd < 0){
+      printf("Error: accept faild\n");
+    }
+    
+    
+    hp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr,
                        sizeof(clientaddr.sin_addr.s_addr), AF_INET);
+    if(hp != 0 ){
+      printf("Error: client address lookup failed \n");
+      shutdown(connfd, SHUT_RDWR);
+      continue;
+    }
     haddrp = inet_ntoa(clientaddr.sin_addr);
+
     printf("server connected to %s (%s)\n", hp->h_name,haddrp);
-    echo(connfd);
-    Close(connfd);
+    
+    char buf[256];
+    int ret;
+    while ((ret = read(connfd,buf, sizeof(buf) - 1)) > 0){
+        buf[ret] = '\0';
+        printf("server received %d bytes \n", ret);
+        write(connfd, buf, ret);
+    }
+   
+    shutdown(connfd,SHUT_RDWR);
+  }
   
   return 0;
 }
