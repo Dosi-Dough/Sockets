@@ -22,19 +22,13 @@ struct sockaddr_in * dnsaccess(char *hostname){
 
 int main(int argc, char* argv[]){
   
-  //initialize socket descritors, port var, and client length var
   int listenfd, connfd, port, clientlen, backLog;
-  //initialize host entity struct
   struct hostent *hp;
   struct sockaddr_in clientaddr;
-  //initialize host address pointer
   char *haddrp;
   
-  //convert string input of port # to int
   port = atoi(argv[1]);
   backLog = 0;
-  //calls the listen function, which listens for a connect function
-  // and returns a socket descriptor if the listen is valid 
   listenfd = listen(port, backLog);
   if(listenfd < 0){
     printf("Error: could not open server socker\n");
