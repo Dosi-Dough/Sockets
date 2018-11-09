@@ -3,12 +3,14 @@
 #include<sys/socket.h>
 #include<string.h>
 #include<netdb.h>
+#include<arpa/inet.h>
+
 
 void inputProcessing(){
   return;
 }
 
-int main(){
+void dnsLookUp(){
   FILE *fp;
   char domain[50];
   char address[300];
@@ -34,9 +36,7 @@ int main(){
 
   if(errCode != 0){
     printf("error\n");
-    return 0;
   }
   inet_ntop(res->ai_family, res->ai_addr->sa_data, address, 300 );
   printf("%s \n", address);
-  return 0;
 }
